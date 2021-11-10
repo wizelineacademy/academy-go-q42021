@@ -7,7 +7,7 @@ import (
 
 func TestNewPokemon(t *testing.T) {
 	poke := NewPokemon(3, "pikachu")
-	expected := Pokemon{
+	expected := &Pokemon{
 		3,
 		"pikachu",
 	}

@@ -5,6 +5,10 @@ type Pokemon struct {
 	name string
 }
 
+type PokeMonsters struct {
+	Pokemon []Pokemon
+}
+
 func NewPokemon(id int, name string)  *Pokemon{
 	p := new(Pokemon)
 	p.id = id
