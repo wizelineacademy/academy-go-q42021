@@ -15,3 +15,23 @@ func TestNewPokemon(t *testing.T) {
 	actual := poke
 	assert.Equal(t, actual, expected)
 }
+
+func TestGettingPokemonNameById(t *testing.T)  {
+	pokemonsers := &PokeMonsters{
+		[]*Pokemon{
+			{
+				Id: 10,
+				Name: "jigglypuff",
+			},
+			{
+				Id: 150,
+				Name: "mewtwo",
+			},
+		},
+	}
+
+	expected := "jigglypuff"
+	actual := pokemonsers.SearchNameById(10)
+
+	assert.Equal(t, actual, expected)
+}
