@@ -5,10 +5,12 @@ import (
 	"errors"
 	"github.com/smmd/academy-go-q42021/model"
 	"os"
+	"strconv"
 )
 
 func GetPokeMonstersFromFile(filePath string) (*model.PokeMonsters, error) {
 	file, err := csvToObject(filePath)
+	pokemonsters := make([]*model.Pokemon, 0)
 
 	if err != nil {
 		return nil, errors.New("Error reading file.")
@@ -18,7 +20,22 @@ func GetPokeMonstersFromFile(filePath string) (*model.PokeMonsters, error) {
 
 	lines, err := reader.ReadAll()
 
-	//TODO: foreach to convert Pokemons
+	if err != nil {
+		return nil, errors.New("Error getting file records.")
+	}
+
+	for _, line := range lines {
+		pokeid, _ := strconv.Atoi(line[0])
+
+		pokemonsters = append(pokemonsters, &model.Pokemon{
+			Id:	  pokeid,
+			Name: line[1],
+		})
+	}
+
+	return &model.PokeMonsters{
+		Pokemon: pokemonsters,
+	}, nil
 }
 
 func csvToObject(filePath string) (*os.File, error) {
@@ -27,8 +44,6 @@ func csvToObject(filePath string) (*os.File, error) {
 	if err != nil {
 		return nil, errors.New("File can not be read.")
 	}
-
-	file.Close()
 
 	return file, nil
 }
