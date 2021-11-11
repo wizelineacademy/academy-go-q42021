@@ -10,7 +10,7 @@ import (
 
 func GetPokeMonstersFromFile(filePath string) (*model.PokeMonsters, error) {
 	file, err := csvToObject(filePath)
-	pokemonsters := make([]*model.Pokemon, 0)
+	pokeMonsters := make([]*model.Pokemon, 0)
 
 	if err != nil {
 		return nil, errors.New("Error reading file.")
@@ -25,16 +25,16 @@ func GetPokeMonstersFromFile(filePath string) (*model.PokeMonsters, error) {
 	}
 
 	for _, line := range lines {
-		pokeid, _ := strconv.Atoi(line[0])
+		pokeId, _ := strconv.Atoi(line[0])
 
-		pokemonsters = append(pokemonsters, &model.Pokemon{
-			Id:	  pokeid,
+		pokeMonsters = append(pokeMonsters, &model.Pokemon{
+			Id:	  pokeId,
 			Name: line[1],
 		})
 	}
 
 	return &model.PokeMonsters{
-		Pokemon: pokemonsters,
+		Pokemon: pokeMonsters,
 	}, nil
 }
 

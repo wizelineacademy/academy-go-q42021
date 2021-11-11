@@ -7,16 +7,29 @@ import (
 
 func main() {
 	var pokeId int
+	var filePath string
 
 	fmt.Print("Enter a Pokemon ID: ")
-	fmt.Scanf("%d", &pokeId)
 
-	//TODO: second iteration input file path
-	pokemonsters, err := pokereader.GetPokeMonstersFromFile("pokedex_data.csv")
+	_, err := fmt.Scanf("%d", &pokeId)
+
+	if err != nil {
+		panic(fmt.Errorf("could not read ID: %w", err))
+	}
+
+	fmt.Print("Enter the csv path: ")
+
+	_, err = fmt.Scanf("%s", &filePath)
+
+	if err != nil {
+		panic(fmt.Errorf("could not read Path: %w", err))
+	}
+
+	pokeMonsters, err := pokereader.GetPokeMonstersFromFile(filePath)
 
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(pokemonsters.SearchNameById(pokeId))
+	fmt.Println(pokeMonsters.SearchNameById(pokeId))
 }
