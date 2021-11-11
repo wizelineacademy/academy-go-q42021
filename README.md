@@ -1,5 +1,19 @@
 # Golang Bootcamp
 
+## Sagrario Meneses First Deliverable
+
+Usage example of the developer script:
+
+```bash
+go run main.go
+
+Enter a Pokemon ID: 1
+Enter the csv path: reader/fixtures/pokedex_data.csv
+
+bulbasaur
+```
+
+# Bootcamp original instructions
 ## Introduction
 
 Thank you for participating in the Golang Bootcamp course!
