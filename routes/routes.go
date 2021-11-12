@@ -10,6 +10,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Model struct {
+	Id   int
+	Name string
+}
+
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the HomePage!")
 	fmt.Println("Endpoint Hit: mainHandler")
