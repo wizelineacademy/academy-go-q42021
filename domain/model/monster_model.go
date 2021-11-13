@@ -1,4 +1,4 @@
-package models
+package model
 
 type Monster struct {
 	Id              string

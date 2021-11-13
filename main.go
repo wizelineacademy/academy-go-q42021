@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/Le-MaliX/ACADEMY-GO-Q42021/routes"
+	router "github.com/Le-MaliX/ACADEMY-GO-Q42021/infrastructure/router"
 )
 
 func main() {
-	r := routes.Routes()
+	r := router.Routes()
 
 	r.Run()
 }

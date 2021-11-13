@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/Le-MaliX/ACADEMY-GO-Q42021/controllers"
+	"github.com/Le-MaliX/ACADEMY-GO-Q42021/interface/controllers"
 	"github.com/gin-gonic/gin"
 )
 
