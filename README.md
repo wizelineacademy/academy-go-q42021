@@ -1,3 +1,44 @@
+# PR Victor Chavez
+
+To use this API need to start go with the command
+
+```
+go run main.go
+```
+
+To test the API can be done with
+
+```
+curl -X GET --location "http://localhost:8080/api/getContentCSV" \
+    -H "Accept: application/json"
+```
+
+Be sure to have the test.csv file in the root of the project, this is an example line, needs to be integrated wit 4 fields, 
+- first one is the int ID
+- second is the title of a blog post
+- third is the content of the block
+- four is the author
+```
+...
+1,Este es mi primer post,Este es el contenido de mi primer posts,Víctor Chavez
+...
+
+```
+
+The expected result for this is the next JSON
+```json
+[
+  {
+    "article_uuid": 1,
+    "title": "Este es mi primer post",
+    "content": "Este es el contenido de mi primer posts",
+    "author": "Víctor Chavez"
+  },  
+  ...
+]
+```
+
+
 # Golang Bootcamp
 
 ## Introduction
