@@ -12,15 +12,22 @@ type pokemonInteractor struct {
 }
 
 type PokemonInteractor interface {
-	Get() (error, []*model.Pokemon)
+	GetAll() (error, []*model.Pokemon)
+	GetOne(id uint64) (error, *model.Pokemon)
 }
 
 func NewPokemonInteractor(r repository.PokemonRepository, p presenter.PokemonPresenter) PokemonInteractor {
 	return &pokemonInteractor{r, p}
 }
 
-func (ps *pokemonInteractor) Get() (error, []*model.Pokemon) {
+func (ps *pokemonInteractor) GetAll() (error, []*model.Pokemon) {
 	err, p := ps.PokemonRepository.FindAll()
 
 	return err, ps.PokemonPresenter.ResponsePokemons(p)
+}
+
+func (ps *pokemonInteractor) GetOne(id uint64) (error, *model.Pokemon) {
+	err, p := ps.PokemonRepository.FindOne(id)
+
+	return err, ps.PokemonPresenter.ResponsePokemon(p)
 }
