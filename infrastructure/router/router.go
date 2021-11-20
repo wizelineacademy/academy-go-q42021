@@ -1,6 +1,8 @@
 package router
 
 import (
+	"log"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
@@ -12,7 +14,11 @@ func NewRouter(e *echo.Echo, c controller.AppController) *echo.Echo {
 	config.ReadConfig()
 
 	if config.C.Logging == true {
-		e.Use(middleware.Logger())
+		e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+			Format:           "${time_custom} Request method=${method}, uri=${uri}, status=${status}\n",
+			CustomTimeFormat: "2006/01/02 15:04:05",
+			Output:           log.Writer(),
+		}))
 	}
 	e.Use(middleware.Recover())
 

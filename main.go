@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -16,6 +15,11 @@ import (
 func main() {
 	config.ReadConfig()
 
+	if config.C.Logging != true {
+		log.SetOutput(ioutil.Discard)
+		log.SetFlags(0)
+	}
+
 	err, mycsv := datastore.NewCSV()
 
 	if err != nil {
@@ -29,13 +33,7 @@ func main() {
 	e := echo.New()
 	e = router.NewRouter(e, r.NewAppController())
 
-	if config.C.Logging != true {
-		log.SetOutput(ioutil.Discard)
-		log.SetFlags(0)
-	}
-
 	if err := e.Start(":" + config.C.Server.Address); err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
-	fmt.Println("Server listening at http://localhost" + ":" + config.C.Server.Address)
 }
