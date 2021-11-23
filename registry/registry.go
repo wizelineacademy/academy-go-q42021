@@ -6,14 +6,14 @@ import (
 )
 
 type registry struct {
-	mycsv *datatstore.MyCSV
+	mycsv datatstore.MyCSV
 }
 
 type Registry interface {
 	NewAppController() controller.AppController
 }
 
-func NewRegistry(mycsv *datatstore.MyCSV) Registry {
+func NewRegistry(mycsv datatstore.MyCSV) Registry {
 	return &registry{mycsv}
 }
 

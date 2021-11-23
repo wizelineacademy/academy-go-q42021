@@ -1,6 +1,7 @@
 package repository_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/hamg26/academy-go-q42021/domain/model"
@@ -10,28 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setupSuccess(t *testing.T) (r ur.PokemonRepository) {
-	records := [][]string{
-		{"1", "name1", "type1"},
-		{"2", "name2", "type2"},
-	}
-	return setupRepository(t, records)
-}
-
-func setupInvalidId(t *testing.T) (r ur.PokemonRepository) {
-	records := [][]string{
-		{"INVALID_ID", "name1", "type1"},
-		{"2", "name2", "type2"},
-	}
-	return setupRepository(t, records)
-}
-
-func setupError(t *testing.T) (r ur.PokemonRepository) {
-	return setupRepository(t, nil)
-}
-
-func setupRepository(t *testing.T, records [][]string) (r ur.PokemonRepository) {
-	mycsv := testutil.NewCsvMock(t, records)
+func setupMockRepository(t *testing.T, fakeError error, testCase string) (r ur.PokemonRepository) {
+	mycsv := testutil.NewCsvMock(t, fakeError, testCase)
 	return ir.NewPokemonRepository(mycsv)
 }
 
@@ -44,7 +25,7 @@ func TestPokemonRepository_FindAll(t *testing.T) {
 	}{
 		"success": {
 			arrange: func(t *testing.T) ur.PokemonRepository {
-				r := setupSuccess(t)
+				r := setupMockRepository(t, nil, "SUCCESS")
 				return r
 			},
 			assert: func(t *testing.T, p []*model.Pokemon, err error) {
@@ -52,9 +33,9 @@ func TestPokemonRepository_FindAll(t *testing.T) {
 				assert.Equal(t, 2, len(p))
 			},
 		},
-		"invalid data from csv": {
+		"invalid id from csv": {
 			arrange: func(t *testing.T) ur.PokemonRepository {
-				r := setupInvalidId(t)
+				r := setupMockRepository(t, nil, "INVALID_ID")
 				return r
 			},
 			assert: func(t *testing.T, p []*model.Pokemon, err error) {
@@ -63,7 +44,7 @@ func TestPokemonRepository_FindAll(t *testing.T) {
 		},
 		"error": {
 			arrange: func(t *testing.T) ur.PokemonRepository {
-				r := setupError(t)
+				r := setupMockRepository(t, errors.New("fake error"), "NIL")
 				return r
 			},
 			assert: func(t *testing.T, p []*model.Pokemon, err error) {
@@ -90,7 +71,7 @@ func TestPokemonRepository_FindOne(t *testing.T) {
 	}{
 		"success": {
 			arrange: func(t *testing.T) (ur.PokemonRepository, uint64) {
-				r := setupSuccess(t)
+				r := setupMockRepository(t, nil, "SUCCESS")
 				id := uint64(1)
 				return r, id
 			},
@@ -101,7 +82,7 @@ func TestPokemonRepository_FindOne(t *testing.T) {
 		},
 		"id not found": {
 			arrange: func(t *testing.T) (ur.PokemonRepository, uint64) {
-				r := setupSuccess(t)
+				r := setupMockRepository(t, nil, "SUCCESS")
 				id := uint64(0)
 				return r, id
 			},
@@ -110,9 +91,9 @@ func TestPokemonRepository_FindOne(t *testing.T) {
 				assert.Nil(t, p)
 			},
 		},
-		"invalid data from csv": {
+		"invalid id from csv": {
 			arrange: func(t *testing.T) (ur.PokemonRepository, uint64) {
-				r := setupInvalidId(t)
+				r := setupMockRepository(t, nil, "INVALID_ID")
 				id := uint64(2)
 				return r, id
 			},
@@ -123,7 +104,7 @@ func TestPokemonRepository_FindOne(t *testing.T) {
 		},
 		"error": {
 			arrange: func(t *testing.T) (ur.PokemonRepository, uint64) {
-				r := setupError(t)
+				r := setupMockRepository(t, errors.New("fake error"), "NIL")
 				id := uint64(1)
 				return r, id
 			},

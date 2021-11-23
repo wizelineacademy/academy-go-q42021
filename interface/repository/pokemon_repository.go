@@ -10,10 +10,10 @@ import (
 )
 
 type pokemonRepository struct {
-	mycsv *datatstore.MyCSV
+	mycsv datatstore.MyCSV
 }
 
-func NewPokemonRepository(mycsv *datatstore.MyCSV) repository.PokemonRepository {
+func NewPokemonRepository(mycsv datatstore.MyCSV) repository.PokemonRepository {
 	return &pokemonRepository{mycsv}
 }
 
