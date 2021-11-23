@@ -15,6 +15,7 @@ type pokemonController struct {
 type PokemonController interface {
 	GetPokemons(c Context) error
 	GetPokemon(c Context) error
+	GetPokemonDetails(c Context) error
 }
 
 func NewPokemonController(ps interactor.PokemonInteractor) PokemonController {
@@ -50,4 +51,31 @@ func (uc *pokemonController) GetPokemon(c Context) error {
 	}
 
 	return c.JSON(http.StatusOK, p)
+}
+
+func (uc *pokemonController) GetPokemonDetails(c Context) error {
+	var details *model.PokemonDetails
+
+	rawid := c.Param("id")
+
+	err, details := uc.pokemonInteractor.GetOneDetails(rawid)
+	if err != nil {
+		return err
+	}
+
+	if details == nil {
+		return c.JSON(http.StatusNotFound, "Pokemon not found")
+	}
+
+	id, e := strconv.ParseUint(rawid, 10, 64)
+	if e != nil {
+		return c.JSON(http.StatusBadRequest, "Id should be an integer")
+	}
+
+	_, p := uc.pokemonInteractor.GetOne(id)
+	if p == nil {
+		uc.pokemonInteractor.SavePokemon(details)
+	}
+
+	return c.JSON(http.StatusOK, details)
 }

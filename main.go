@@ -20,13 +20,7 @@ func main() {
 		log.SetFlags(0)
 	}
 
-	err, mycsv := datastore.NewCSV()
-
-	if err != nil {
-		panic(err)
-	}
-
-	defer mycsv.Close()
+	mycsv := datastore.NewCSV()
 
 	r := registry.NewRegistry(mycsv)
 

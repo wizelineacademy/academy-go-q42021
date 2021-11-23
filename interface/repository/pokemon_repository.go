@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/hamg26/academy-go-q42021/domain/model"
+	clients "github.com/hamg26/academy-go-q42021/infrastructure/clients"
 	datatstore "github.com/hamg26/academy-go-q42021/infrastructure/datastore"
 	"github.com/hamg26/academy-go-q42021/usecase/repository"
 )
@@ -26,6 +27,11 @@ func (pr *pokemonRepository) FindAll() (error, []*model.Pokemon) {
 
 	var pokemons = make([]*model.Pokemon, len(records))
 	for row, content := range records {
+		log.Println(content)
+
+		if len(content) == 0 {
+			continue
+		}
 
 		pokemonId, err := strconv.ParseUint(content[0], 10, 64)
 		if err != nil {
@@ -70,4 +76,17 @@ func (pr *pokemonRepository) FindOne(id uint64) (error, *model.Pokemon) {
 	}
 
 	return nil, nil
+}
+
+func (pr *pokemonRepository) FindOneDetails(id string) (error, *model.PokemonDetails) {
+	err, p := clients.GetPokemon(id)
+
+	return err, &p
+}
+
+func (pr *pokemonRepository) SavePokemon(p *model.PokemonDetails) error {
+	record := []string{strconv.FormatUint(p.Id, 10), p.Name, p.Types[0].Type.Name}
+	err := pr.mycsv.Save(record)
+
+	return err
 }

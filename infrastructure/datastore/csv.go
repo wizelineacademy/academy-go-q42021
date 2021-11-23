@@ -10,7 +10,7 @@ import (
 
 type MyCSV interface {
 	FindAll() (error, [][]string)
-	Close()
+	Save([]string) error
 }
 
 type myCSV struct {
@@ -19,18 +19,14 @@ type myCSV struct {
 	Records  [][]string
 }
 
-func readfile(filepath string) (error, *os.File) {
-	log.Println("Reading", filepath)
-	f, err := os.Open(filepath)
-	return err, f
-}
-
-func (mycsv *myCSV) Close() {
-	log.Println("Closing", mycsv.Filepath)
-	err := mycsv.File.Close()
+func closeFile(f *os.File) error {
+	log.Println("Closing file")
+	err := f.Close()
 	if err != nil {
-		log.Fatalln("Unable to close csv", err)
+		log.Fatalln("Unable to close file", err)
+		return err
 	}
+	return nil
 }
 
 func (mycsv *myCSV) FindAll() (error, [][]string) {
@@ -40,14 +36,49 @@ func (mycsv *myCSV) FindAll() (error, [][]string) {
 	}
 
 	log.Println("Reading records", mycsv.Filepath)
-	csvReader := csv.NewReader(mycsv.File)
+	f, err := os.Open(mycsv.Filepath)
+	if err != nil {
+		return err, nil
+	}
+
+	csvReader := csv.NewReader(f)
 	records, err := csvReader.ReadAll()
 	mycsv.Records = records
+
+	if err := closeFile(f); err != nil {
+		return err, nil
+	}
+
 	return err, records
 }
 
-func NewCSV() (error, MyCSV) {
+func (mycsv *myCSV) Save(record []string) error {
+	log.Println("Saving record", record, mycsv.Filepath)
+
+	f, err := os.Create(mycsv.Filepath)
+	if err != nil {
+		return err
+	}
+
+	w := csv.NewWriter(f)
+
+	records := append(mycsv.Records, record)
+
+	if w.WriteAll(records) == nil {
+		mycsv.Records = append(mycsv.Records, record)
+		w.Flush()
+	} else {
+		log.Fatalln("Error saving record", err)
+	}
+
+	if err := closeFile(f); err != nil {
+		return err
+	}
+
+	return err
+}
+
+func NewCSV() MyCSV {
 	fp := config.C.CSV.Path
-	err, f := readfile(fp)
-	return err, &myCSV{Filepath: fp, File: f}
+	return &myCSV{Filepath: fp}
 }

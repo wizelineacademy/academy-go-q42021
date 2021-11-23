@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hamg26/academy-go-q42021/infrastructure/datastore"
@@ -11,13 +12,19 @@ type myCSV struct {
 	Records   [][]string
 }
 
-func (mycsv *myCSV) Close() {}
+func (mycsv *myCSV) Close(*os.File) error {
+	return nil
+}
 
 func (mycsv *myCSV) FindAll() (error, [][]string) {
 	if mycsv.FakeError != nil {
 		return mycsv.FakeError, nil
 	}
 	return nil, mycsv.Records
+}
+
+func (mycsv *myCSV) Save([]string) error {
+	return nil
 }
 
 func NewCsvMock(t *testing.T, fakeError error, testCase string) datastore.MyCSV {

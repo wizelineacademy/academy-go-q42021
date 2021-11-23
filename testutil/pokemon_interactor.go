@@ -19,6 +19,19 @@ func (pi *pokemonInteractor) GetOne(id uint64) (error, *model.Pokemon) {
 	return pi.FakeError, pi.Records[0]
 }
 
+func (pi *pokemonInteractor) GetOneDetails(id string) (error, *model.PokemonDetails) {
+	if pi.Records == nil {
+		return pi.FakeError, nil
+	}
+	p := pi.Records[0]
+	pd := &model.PokemonDetails{Id: p.Id, Name: p.Name}
+	return nil, pd
+}
+
+func (pi *pokemonInteractor) SavePokemon(p *model.PokemonDetails) error {
+	return pi.FakeError
+}
+
 func (pi *pokemonInteractor) GetAll() (error, []*model.Pokemon) {
 	return pi.FakeError, pi.Records
 }

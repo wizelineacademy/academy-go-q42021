@@ -29,3 +29,13 @@ func (pp *pokemonPresenter) ResponsePokemon(p *model.Pokemon) *model.Pokemon {
 	}
 	return p
 }
+
+func (pp *pokemonPresenter) ResponsePokemonDetails(p *model.PokemonDetails) *model.PokemonDetails {
+	if p != nil {
+		p.Name = strings.Title(strings.ToLower(p.Name))
+		for i, typeData := range p.Types {
+			p.Types[i].Type.Name = strings.Title(strings.ToLower(typeData.Type.Name))
+		}
+	}
+	return p
+}

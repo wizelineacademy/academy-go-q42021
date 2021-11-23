@@ -14,6 +14,8 @@ type pokemonInteractor struct {
 type PokemonInteractor interface {
 	GetAll() (error, []*model.Pokemon)
 	GetOne(id uint64) (error, *model.Pokemon)
+	GetOneDetails(id string) (error, *model.PokemonDetails)
+	SavePokemon(*model.PokemonDetails) error
 }
 
 func NewPokemonInteractor(r repository.PokemonRepository, p presenter.PokemonPresenter) PokemonInteractor {
@@ -30,4 +32,16 @@ func (ps *pokemonInteractor) GetOne(id uint64) (error, *model.Pokemon) {
 	err, p := ps.PokemonRepository.FindOne(id)
 
 	return err, ps.PokemonPresenter.ResponsePokemon(p)
+}
+
+func (ps *pokemonInteractor) GetOneDetails(id string) (error, *model.PokemonDetails) {
+	err, p := ps.PokemonRepository.FindOneDetails(id)
+
+	return err, ps.PokemonPresenter.ResponsePokemonDetails(p)
+}
+
+func (ps *pokemonInteractor) SavePokemon(p *model.PokemonDetails) error {
+	err := ps.PokemonRepository.SavePokemon(p)
+
+	return err
 }
