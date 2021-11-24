@@ -1,19 +1,20 @@
 package main
 
 import (
-	"encoding/csv"
-	"strconv"
+
 	"fmt"
-	"net/http"
-	entity "academy-go-q42021/pkg/entity"
-    repo "academy-go-q42021/pkg/repo"
-	server "academy-go-q42021/pkg/server"
-	"os"
 	"log"
+	"os"	
+	"strconv"	
+	"encoding/csv"
+	"net/http"
+	repo "academy-go-q42021/pkg/repo"
+	server "academy-go-q42021/pkg/server"
+	entity "academy-go-q42021/pkg/entity"
 )
 
+// Items - Define type to create a repository for items
 type Items []entity.Item
-
 
 func readCSVFile() []entity.Item  {
 		// open the CSV FILE and read and print it contain.
@@ -38,7 +39,7 @@ func readCSVFile() []entity.Item  {
 				log.Fatal( err )
 			}
 			record := entity.Item{
-				Id:   id,
+				ID:   id,
 				Name: line[1],
 			}
 			itemsList = append(itemsList, record)
