@@ -30,7 +30,6 @@ func ReadConfig() {
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println(err)
 		log.Fatalln(err)
 	}
 

@@ -24,7 +24,7 @@ func (mycsv *myCSV) FindAll() (error, [][]string) {
 }
 
 func (mycsv *myCSV) Save([]string) error {
-	return nil
+	return mycsv.FakeError
 }
 
 func NewCsvMock(t *testing.T, fakeError error, testCase string) datastore.MyCSV {
@@ -33,6 +33,10 @@ func NewCsvMock(t *testing.T, fakeError error, testCase string) datastore.MyCSV 
 		"SUCCESS": {
 			{"1", "name1", "type1"},
 			{"2", "name2", "type2"},
+		},
+		"EMPTY": {
+			{"1", "name1", "type1"},
+			{},
 		},
 		"INVALID_ID": {
 			{"asd", "name1", "type1"},

@@ -58,6 +58,11 @@ func (uc *pokemonController) GetPokemonDetails(c Context) error {
 
 	rawid := c.Param("id")
 
+	id, e := strconv.ParseUint(rawid, 10, 64)
+	if e != nil {
+		return c.JSON(http.StatusBadRequest, "Id should be an integer")
+	}
+
 	err, details := uc.pokemonInteractor.GetOneDetails(rawid)
 	if err != nil {
 		return err
@@ -65,11 +70,6 @@ func (uc *pokemonController) GetPokemonDetails(c Context) error {
 
 	if details == nil {
 		return c.JSON(http.StatusNotFound, "Pokemon not found")
-	}
-
-	id, e := strconv.ParseUint(rawid, 10, 64)
-	if e != nil {
-		return c.JSON(http.StatusBadRequest, "Id should be an integer")
 	}
 
 	_, p := uc.pokemonInteractor.GetOne(id)

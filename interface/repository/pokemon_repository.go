@@ -12,10 +12,11 @@ import (
 
 type pokemonRepository struct {
 	mycsv datatstore.MyCSV
+	api   clients.ApiClient
 }
 
-func NewPokemonRepository(mycsv datatstore.MyCSV) repository.PokemonRepository {
-	return &pokemonRepository{mycsv}
+func NewPokemonRepository(mycsv datatstore.MyCSV, api clients.ApiClient) repository.PokemonRepository {
+	return &pokemonRepository{mycsv, api}
 }
 
 func (pr *pokemonRepository) FindAll() (error, []*model.Pokemon) {
@@ -27,7 +28,6 @@ func (pr *pokemonRepository) FindAll() (error, []*model.Pokemon) {
 
 	var pokemons = make([]*model.Pokemon, len(records))
 	for row, content := range records {
-		log.Println(content)
 
 		if len(content) == 0 {
 			continue
@@ -79,13 +79,16 @@ func (pr *pokemonRepository) FindOne(id uint64) (error, *model.Pokemon) {
 }
 
 func (pr *pokemonRepository) FindOneDetails(id string) (error, *model.PokemonDetails) {
-	err, p := clients.GetPokemon(id)
-
-	return err, &p
+	err, p := pr.api.GetPokemon(id)
+	return err, p
 }
 
 func (pr *pokemonRepository) SavePokemon(p *model.PokemonDetails) error {
-	record := []string{strconv.FormatUint(p.Id, 10), p.Name, p.Types[0].Type.Name}
+	var t = ""
+	if p.Types != nil || len(p.Types) > 0 {
+		t = p.Types[0].Type.Name
+	}
+	record := []string{strconv.FormatUint(p.Id, 10), p.Name, t}
 	err := pr.mycsv.Save(record)
 
 	return err

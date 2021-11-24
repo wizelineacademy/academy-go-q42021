@@ -12,13 +12,21 @@ import (
 
 const apiurl = "https://pokeapi.co/api/v2/"
 
-func GetPokemon(id string) (err error, result models.PokemonDetails) {
-	err = request(fmt.Sprintf("pokemon/%s", id), &result)
+type ApiClient interface {
+	GetPokemon(string) (error, *models.PokemonDetails)
+}
+
+type apiClient struct {
+	Url string
+}
+
+func (apiClient *apiClient) GetPokemon(id string) (err error, result *models.PokemonDetails) {
+	err = apiClient.request(fmt.Sprintf("pokemon/%s", id), &result)
 	return err, result
 }
 
-func request(endpoint string, obj interface{}) error {
-	req, err := http.NewRequest(http.MethodGet, apiurl+endpoint, nil)
+func (apiClient *apiClient) request(endpoint string, obj interface{}) error {
+	req, err := http.NewRequest(http.MethodGet, apiClient.Url+endpoint, nil)
 	if err != nil {
 		return err
 	}
@@ -36,4 +44,8 @@ func request(endpoint string, obj interface{}) error {
 	}
 
 	return json.Unmarshal(body, &obj)
+}
+
+func NewApiClient(url string) ApiClient {
+	return &apiClient{Url: url}
 }

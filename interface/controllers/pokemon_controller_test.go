@@ -10,12 +10,8 @@ import (
 	"github.com/hamg26/academy-go-q42021/testutil"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
-
-func setupMockController(t *testing.T, fakeError error, testCase string) pc.PokemonController {
-	pi := testutil.NewPokemonInteractorMock(t, fakeError, testCase)
-	return pc.NewPokemonController(pi)
-}
 
 func TestPokemonController_GetPokemons(t *testing.T) {
 	t.Helper()
@@ -26,7 +22,9 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 	}{
 		"success": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, nil, "SUCCESS")
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetAll").Return(testutil.GetPokemons(), nil)
+				controller := pc.NewPokemonController(pi)
 				context := testutil.NewContextMock(t, nil, nil)
 				return controller, context
 			},
@@ -38,8 +36,10 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 		},
 		"error": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, errors.New("fake error controller"), "NIL")
-				context := testutil.NewContextMock(t, errors.New("fake error context"), nil)
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetAll").Return(nil, errors.New("fake error"))
+				controller := pc.NewPokemonController(pi)
+				context := testutil.NewContextMock(t, nil, nil)
 				return controller, context
 			},
 			assert: func(t *testing.T, context pc.Context, err error) {
@@ -69,7 +69,9 @@ func TestPokemonController_GetPokemon(t *testing.T) {
 	}{
 		"success": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, nil, "SUCCESS")
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetOne", uint64(1)).Return(testutil.GetPokemons()[0], nil)
+				controller := pc.NewPokemonController(pi)
 				params := map[string]string{
 					"id": "1",
 				}
@@ -90,7 +92,9 @@ func TestPokemonController_GetPokemon(t *testing.T) {
 		},
 		"not_found": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, nil, "NIL")
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetOne", uint64(0)).Return(nil, nil)
+				controller := pc.NewPokemonController(pi)
 				params := map[string]string{
 					"id": "0",
 				}
@@ -109,7 +113,8 @@ func TestPokemonController_GetPokemon(t *testing.T) {
 		},
 		"invalid_id": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, nil, "SUCCESS")
+				pi := new(testutil.PokemonInteractor)
+				controller := pc.NewPokemonController(pi)
 				params := map[string]string{
 					"id": "asd",
 				}
@@ -128,7 +133,9 @@ func TestPokemonController_GetPokemon(t *testing.T) {
 		},
 		"error": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, errors.New("fake error controller"), "SUCCESS")
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetOne", uint64(1)).Return(testutil.GetPokemons()[0], errors.New("fake error"))
+				controller := pc.NewPokemonController(pi)
 				params := map[string]string{
 					"id": "1",
 				}
@@ -162,7 +169,35 @@ func TestPokemonController_GetPokemonDetails(t *testing.T) {
 	}{
 		"success": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, nil, "SUCCESS")
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetOne", uint64(1)).Return(testutil.GetPokemons()[0], nil)
+				pi.On("GetOneDetails", "1").Return(testutil.GetPokemonDetails(), nil)
+				controller := pc.NewPokemonController(pi)
+				params := map[string]string{
+					"id": "1",
+				}
+				context := testutil.NewContextMock(t, nil, params)
+				return controller, context
+			},
+			assert: func(t *testing.T, context pc.Context, err error) {
+				assert.Nil(t, err)
+				assert.NotNil(t, context)
+				assert.Equal(t, http.StatusOK, context.Get("StatusCode"))
+				response := context.Get("Response")
+				if assert.NotNil(t, response) {
+					pokemon := response.(*model.PokemonDetails)
+					assert.Equal(t, "name1", pokemon.Name)
+					assert.Equal(t, uint64(1), pokemon.Id)
+				}
+			},
+		},
+		"success_saving": {
+			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetOne", uint64(1)).Return(nil, nil)
+				pi.On("GetOneDetails", "1").Return(testutil.GetPokemonDetails(), nil)
+				pi.On("SavePokemon", mock.Anything).Return(nil)
+				controller := pc.NewPokemonController(pi)
 				params := map[string]string{
 					"id": "1",
 				}
@@ -183,7 +218,9 @@ func TestPokemonController_GetPokemonDetails(t *testing.T) {
 		},
 		"not_found": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, nil, "NIL")
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetOneDetails", "0").Return(nil, nil)
+				controller := pc.NewPokemonController(pi)
 				params := map[string]string{
 					"id": "0",
 				}
@@ -202,7 +239,9 @@ func TestPokemonController_GetPokemonDetails(t *testing.T) {
 		},
 		"invalid_id": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, nil, "SUCCESS")
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetOneDetails", "asd").Return(nil, nil)
+				controller := pc.NewPokemonController(pi)
 				params := map[string]string{
 					"id": "asd",
 				}
@@ -219,25 +258,13 @@ func TestPokemonController_GetPokemonDetails(t *testing.T) {
 				}
 			},
 		},
-		// "error_saving": {
-		// 	arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-		// 		controller := setupMockController(t, errors.New("fake error controller"), "SUCCESS")
-		// 		params := map[string]string{
-		// 			"id": "1",
-		// 		}
-		// 		context := testutil.NewContextMock(t, nil, params)
-		// 		return controller, context
-		// 	},
-		// 	assert: func(t *testing.T, context pc.Context, err error) {
-		// 		assert.NotNil(t, err)
-		// 		assert.NotNil(t, context)
-		// 		assert.Nil(t, context.Get("StatusCode"))
-		// 		assert.Nil(t, context.Get("Response"))
-		// 	},
-		// },
 		"error": {
 			arrange: func(t *testing.T) (pc.PokemonController, pc.Context) {
-				controller := setupMockController(t, errors.New("fake error controller"), "NIL")
+				pi := new(testutil.PokemonInteractor)
+				pi.On("GetOneDetails", "1").Return(nil, errors.New("error saving"))
+				pi.On("GetOne", uint64(1)).Return(nil, nil)
+				pi.On("SavePokemon", mock.Anything).Return(errors.New("error saving"))
+				controller := pc.NewPokemonController(pi)
 				params := map[string]string{
 					"id": "1",
 				}

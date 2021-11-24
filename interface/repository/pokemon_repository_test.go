@@ -11,11 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setupMockRepository(t *testing.T, fakeError error, testCase string) (r ur.PokemonRepository) {
-	mycsv := testutil.NewCsvMock(t, fakeError, testCase)
-	return ir.NewPokemonRepository(mycsv)
-}
-
 func TestPokemonRepository_FindAll(t *testing.T) {
 	t.Helper()
 
@@ -25,7 +20,21 @@ func TestPokemonRepository_FindAll(t *testing.T) {
 	}{
 		"success": {
 			arrange: func(t *testing.T) ur.PokemonRepository {
-				r := setupMockRepository(t, nil, "SUCCESS")
+				mycsv := testutil.NewCsvMock(t, nil, "SUCCESS")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
+				return r
+			},
+			assert: func(t *testing.T, p []*model.Pokemon, err error) {
+				assert.Nil(t, err)
+				assert.Equal(t, 2, len(p))
+			},
+		},
+		"empty": {
+			arrange: func(t *testing.T) ur.PokemonRepository {
+				mycsv := testutil.NewCsvMock(t, nil, "EMPTY")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
 				return r
 			},
 			assert: func(t *testing.T, p []*model.Pokemon, err error) {
@@ -35,7 +44,9 @@ func TestPokemonRepository_FindAll(t *testing.T) {
 		},
 		"invalid id from csv": {
 			arrange: func(t *testing.T) ur.PokemonRepository {
-				r := setupMockRepository(t, nil, "INVALID_ID")
+				mycsv := testutil.NewCsvMock(t, nil, "INVALID_ID")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
 				return r
 			},
 			assert: func(t *testing.T, p []*model.Pokemon, err error) {
@@ -44,7 +55,9 @@ func TestPokemonRepository_FindAll(t *testing.T) {
 		},
 		"error": {
 			arrange: func(t *testing.T) ur.PokemonRepository {
-				r := setupMockRepository(t, errors.New("fake error"), "NIL")
+				mycsv := testutil.NewCsvMock(t, errors.New("fake error"), "NIL")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
 				return r
 			},
 			assert: func(t *testing.T, p []*model.Pokemon, err error) {
@@ -71,7 +84,9 @@ func TestPokemonRepository_FindOne(t *testing.T) {
 	}{
 		"success": {
 			arrange: func(t *testing.T) (ur.PokemonRepository, uint64) {
-				r := setupMockRepository(t, nil, "SUCCESS")
+				mycsv := testutil.NewCsvMock(t, nil, "SUCCESS")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
 				id := uint64(1)
 				return r, id
 			},
@@ -82,7 +97,9 @@ func TestPokemonRepository_FindOne(t *testing.T) {
 		},
 		"id not found": {
 			arrange: func(t *testing.T) (ur.PokemonRepository, uint64) {
-				r := setupMockRepository(t, nil, "SUCCESS")
+				mycsv := testutil.NewCsvMock(t, nil, "SUCCESS")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
 				id := uint64(0)
 				return r, id
 			},
@@ -93,7 +110,9 @@ func TestPokemonRepository_FindOne(t *testing.T) {
 		},
 		"invalid id from csv": {
 			arrange: func(t *testing.T) (ur.PokemonRepository, uint64) {
-				r := setupMockRepository(t, nil, "INVALID_ID")
+				mycsv := testutil.NewCsvMock(t, nil, "INVALID_ID")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
 				id := uint64(2)
 				return r, id
 			},
@@ -104,7 +123,9 @@ func TestPokemonRepository_FindOne(t *testing.T) {
 		},
 		"error": {
 			arrange: func(t *testing.T) (ur.PokemonRepository, uint64) {
-				r := setupMockRepository(t, errors.New("fake error"), "NIL")
+				mycsv := testutil.NewCsvMock(t, errors.New("fake error"), "NIL")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
 				id := uint64(1)
 				return r, id
 			},
@@ -120,6 +141,105 @@ func TestPokemonRepository_FindOne(t *testing.T) {
 			r, id := tt.arrange(t)
 			err, p := r.FindOne(id)
 			tt.assert(t, p, err)
+		})
+	}
+}
+
+func TestPokemonRepository_FindOneDetails(t *testing.T) {
+	t.Helper()
+
+	cases := map[string]struct {
+		arrange func(t *testing.T) (ur.PokemonRepository, string)
+		assert  func(t *testing.T, p *model.PokemonDetails, err error)
+	}{
+		"success": {
+			arrange: func(t *testing.T) (ur.PokemonRepository, string) {
+				mycsv := testutil.NewCsvMock(t, nil, "NIL")
+				api := new(testutil.ApiClient)
+				api.On("GetPokemon", "1").Return(testutil.GetPokemonDetails(), nil)
+				r := ir.NewPokemonRepository(mycsv, api)
+				id := "1"
+				return r, id
+			},
+			assert: func(t *testing.T, p *model.PokemonDetails, err error) {
+				assert.Nil(t, err)
+				assert.NotNil(t, p)
+			},
+		},
+		"error": {
+			arrange: func(t *testing.T) (ur.PokemonRepository, string) {
+				mycsv := testutil.NewCsvMock(t, nil, "NIL")
+				api := new(testutil.ApiClient)
+				api.On("GetPokemon", "1").Return(nil, errors.New("fake API error"))
+				r := ir.NewPokemonRepository(mycsv, api)
+				id := "1"
+				return r, id
+			},
+			assert: func(t *testing.T, p *model.PokemonDetails, err error) {
+				assert.NotEmpty(t, err)
+				assert.Nil(t, p)
+			},
+		},
+	}
+
+	for k, tt := range cases {
+		t.Run(k, func(t *testing.T) {
+			r, id := tt.arrange(t)
+			err, p := r.FindOneDetails(id)
+			tt.assert(t, p, err)
+		})
+	}
+}
+
+func TestPokemonRepository_SavePokemon(t *testing.T) {
+	t.Helper()
+
+	cases := map[string]struct {
+		arrange func(t *testing.T) (ur.PokemonRepository, *model.PokemonDetails)
+		assert  func(t *testing.T, err error)
+	}{
+		"success": {
+			arrange: func(t *testing.T) (ur.PokemonRepository, *model.PokemonDetails) {
+				mycsv := testutil.NewCsvMock(t, nil, "SUCCESS")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
+				return r, testutil.GetPokemonDetails()
+			},
+			assert: func(t *testing.T, err error) {
+				assert.Nil(t, err)
+			},
+		},
+		"empty_types": {
+			arrange: func(t *testing.T) (ur.PokemonRepository, *model.PokemonDetails) {
+				mycsv := testutil.NewCsvMock(t, nil, "SUCCESS")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
+				pd := testutil.GetPokemonDetails()
+				pd.Types = nil
+				return r, pd
+			},
+			assert: func(t *testing.T, err error) {
+				assert.Nil(t, err)
+			},
+		},
+		"error": {
+			arrange: func(t *testing.T) (ur.PokemonRepository, *model.PokemonDetails) {
+				mycsv := testutil.NewCsvMock(t, errors.New("fake error"), "NIL")
+				api := new(testutil.ApiClient)
+				r := ir.NewPokemonRepository(mycsv, api)
+				return r, testutil.GetPokemonDetails()
+			},
+			assert: func(t *testing.T, err error) {
+				assert.NotEmpty(t, err)
+			},
+		},
+	}
+
+	for k, tt := range cases {
+		t.Run(k, func(t *testing.T) {
+			r, pd := tt.arrange(t)
+			err := r.SavePokemon(pd)
+			tt.assert(t, err)
 		})
 	}
 }
