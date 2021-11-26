@@ -8,12 +8,12 @@ import (
 	"github.com/hamg26/academy-go-q42021/config"
 )
 
-type MyCSV interface {
+type myCSV interface {
 	FindAll() (error, [][]string)
 	Save([]string) error
 }
 
-type myCSV struct {
+type MyCSV struct {
 	Filepath string
 	File     *os.File
 	Records  [][]string
@@ -29,7 +29,7 @@ func closeFile(f *os.File) error {
 	return nil
 }
 
-func (mycsv *myCSV) FindAll() (error, [][]string) {
+func (mycsv *MyCSV) FindAll() (error, [][]string) {
 	if mycsv.Records != nil {
 		log.Println("Returning cached records", mycsv.Filepath)
 		return nil, mycsv.Records
@@ -52,7 +52,7 @@ func (mycsv *myCSV) FindAll() (error, [][]string) {
 	return err, records
 }
 
-func (mycsv *myCSV) Save(record []string) error {
+func (mycsv *MyCSV) Save(record []string) error {
 	log.Println("Saving record", record, mycsv.Filepath)
 
 	f, err := os.Create(mycsv.Filepath)
@@ -78,7 +78,7 @@ func (mycsv *myCSV) Save(record []string) error {
 	return err
 }
 
-func NewCSV() MyCSV {
+func NewCSV() *MyCSV {
 	fp := config.C.CSV.Path
-	return &myCSV{Filepath: fp}
+	return &MyCSV{Filepath: fp}
 }

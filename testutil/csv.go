@@ -1,48 +1,29 @@
 package testutil
 
 import (
-	"os"
-	"testing"
-
-	"github.com/hamg26/academy-go-q42021/infrastructure/datastore"
+	"github.com/stretchr/testify/mock"
 )
 
-type myCSV struct {
-	FakeError error
-	Records   [][]string
-}
-
-func (mycsv *myCSV) Close(*os.File) error {
-	return nil
-}
-
-func (mycsv *myCSV) FindAll() (error, [][]string) {
-	if mycsv.FakeError != nil {
-		return mycsv.FakeError, nil
+func GetPokemonsRecords() [][]string {
+	return [][]string{
+		{"1", "name1", "type1"},
+		{"2", "name2", "type2"},
 	}
-	return nil, mycsv.Records
 }
 
-func (mycsv *myCSV) Save([]string) error {
-	return mycsv.FakeError
+type MyCsvMock struct {
+	mock.Mock
 }
 
-func NewCsvMock(t *testing.T, fakeError error, testCase string) datastore.MyCSV {
-	t.Helper()
-	testCases := map[string][][]string{
-		"SUCCESS": {
-			{"1", "name1", "type1"},
-			{"2", "name2", "type2"},
-		},
-		"EMPTY": {
-			{"1", "name1", "type1"},
-			{},
-		},
-		"INVALID_ID": {
-			{"asd", "name1", "type1"},
-			{"2", "name2", "type2"},
-		},
-		"NIL": nil,
+func (mycsv *MyCsvMock) FindAll() (error, [][]string) {
+	args := mycsv.Called()
+	if args.Get(0) != nil {
+		return args.Error(1), args.Get(0).([][]string)
 	}
-	return &myCSV{FakeError: fakeError, Records: testCases[testCase]}
+	return args.Error(1), nil
+}
+
+func (mycsv *MyCsvMock) Save([]string) error {
+	args := mycsv.Called()
+	return args.Error(0)
 }

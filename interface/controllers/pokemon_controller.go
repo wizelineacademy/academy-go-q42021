@@ -8,21 +8,15 @@ import (
 	"github.com/hamg26/academy-go-q42021/usecase/interactor"
 )
 
-type pokemonController struct {
+type PokemonController struct {
 	pokemonInteractor interactor.PokemonInteractor
 }
 
-type PokemonController interface {
-	GetPokemons(c Context) error
-	GetPokemon(c Context) error
-	GetPokemonDetails(c Context) error
-}
-
 func NewPokemonController(ps interactor.PokemonInteractor) PokemonController {
-	return &pokemonController{ps}
+	return PokemonController{ps}
 }
 
-func (uc *pokemonController) GetPokemons(c Context) error {
+func (uc PokemonController) GetPokemons(c Context) error {
 	var p []*model.Pokemon
 
 	err, p := uc.pokemonInteractor.GetAll()
@@ -33,7 +27,7 @@ func (uc *pokemonController) GetPokemons(c Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-func (uc *pokemonController) GetPokemon(c Context) error {
+func (uc PokemonController) GetPokemon(c Context) error {
 	var p *model.Pokemon
 
 	id, e := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -53,7 +47,7 @@ func (uc *pokemonController) GetPokemon(c Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-func (uc *pokemonController) GetPokemonDetails(c Context) error {
+func (uc PokemonController) GetPokemonDetails(c Context) error {
 	var details *model.PokemonDetails
 
 	rawid := c.Param("id")

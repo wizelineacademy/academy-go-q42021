@@ -5,34 +5,37 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 
 	models "github.com/hamg26/academy-go-q42021/domain/model"
 )
 
 const apiurl = "https://pokeapi.co/api/v2/"
 
-type ApiClient interface {
+type httpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+type pokeApiClient interface {
 	GetPokemon(string) (error, *models.PokemonDetails)
 }
 
-type apiClient struct {
-	Url string
+type PokeApiClient struct {
+	client  httpClient
+	BaseUrl string
 }
 
-func (apiClient *apiClient) GetPokemon(id string) (err error, result *models.PokemonDetails) {
-	err = apiClient.request(fmt.Sprintf("pokemon/%s", id), &result)
+func (pokeApiClient *PokeApiClient) GetPokemon(id string) (err error, result *models.PokemonDetails) {
+	err = pokeApiClient.request(fmt.Sprintf("pokemon/%s", id), &result)
 	return err, result
 }
 
-func (apiClient *apiClient) request(endpoint string, obj interface{}) error {
-	req, err := http.NewRequest(http.MethodGet, apiClient.Url+endpoint, nil)
+func (pokeApiClient *PokeApiClient) request(endpoint string, obj interface{}) error {
+	req, err := http.NewRequest(http.MethodGet, pokeApiClient.BaseUrl+endpoint, nil)
 	if err != nil {
 		return err
 	}
-	client := &http.Client{Timeout: 10 * time.Second}
 
-	resp, err := client.Do(req)
+	resp, err := pokeApiClient.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -46,6 +49,6 @@ func (apiClient *apiClient) request(endpoint string, obj interface{}) error {
 	return json.Unmarshal(body, &obj)
 }
 
-func NewApiClient(url string) ApiClient {
-	return &apiClient{Url: url}
+func NewPokeApiClient(url string, client httpClient) *PokeApiClient {
+	return &PokeApiClient{BaseUrl: url, client: client}
 }

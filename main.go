@@ -3,6 +3,8 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 
@@ -21,8 +23,10 @@ func main() {
 		log.SetFlags(0)
 	}
 
+	client := &http.Client{Timeout: 10 * time.Second}
+
 	mycsv := datastore.NewCSV()
-	api := clients.NewApiClient("https://pokeapi.co/api/v2/")
+	api := clients.NewPokeApiClient("https://pokeapi.co/api/v2/", client)
 
 	r := registry.NewRegistry(mycsv, api)
 

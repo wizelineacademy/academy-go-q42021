@@ -7,15 +7,15 @@ import (
 )
 
 type registry struct {
-	mycsv datatstore.MyCSV
-	api   clients.ApiClient
+	mycsv *datatstore.MyCSV
+	api   *clients.PokeApiClient
 }
 
 type Registry interface {
 	NewAppController() controller.AppController
 }
 
-func NewRegistry(mycsv datatstore.MyCSV, api clients.ApiClient) Registry {
+func NewRegistry(mycsv *datatstore.MyCSV, api *clients.PokeApiClient) Registry {
 	return &registry{mycsv, api}
 }
 

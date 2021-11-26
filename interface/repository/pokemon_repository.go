@@ -5,17 +5,24 @@ import (
 	"strconv"
 
 	"github.com/hamg26/academy-go-q42021/domain/model"
-	clients "github.com/hamg26/academy-go-q42021/infrastructure/clients"
-	datatstore "github.com/hamg26/academy-go-q42021/infrastructure/datastore"
 	"github.com/hamg26/academy-go-q42021/usecase/repository"
 )
 
-type pokemonRepository struct {
-	mycsv datatstore.MyCSV
-	api   clients.ApiClient
+type pokeApiClient interface {
+	GetPokemon(string) (error, *model.PokemonDetails)
 }
 
-func NewPokemonRepository(mycsv datatstore.MyCSV, api clients.ApiClient) repository.PokemonRepository {
+type myCSV interface {
+	FindAll() (error, [][]string)
+	Save([]string) error
+}
+
+type pokemonRepository struct {
+	mycsv myCSV
+	api   pokeApiClient
+}
+
+func NewPokemonRepository(mycsv myCSV, api pokeApiClient) repository.PokemonRepository {
 	return &pokemonRepository{mycsv, api}
 }
 
