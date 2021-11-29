@@ -1,4 +1,4 @@
-package api
+package interfaces
 
 type AnimeStruct struct {
 	AnimeId  int    `json:"anime_id"`

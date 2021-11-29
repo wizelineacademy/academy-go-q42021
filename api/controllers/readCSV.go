@@ -1,4 +1,4 @@
-package api
+package controllers
 
 import (
 	"encoding/csv"
@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+
+	animeI "bootCampApi/api/interfaces"
 
 	"github.com/gorilla/mux"
 )
@@ -68,7 +70,7 @@ func ReadCSV(w http.ResponseWriter, r *http.Request) {
 		records = x
 	}
 
-	var response = make([]AnimeStruct, len(records))
+	var response = make([]animeI.AnimeStruct, len(records))
 	for row, content := range records {
 
 		animeId, err := strconv.Atoi(content[0])
@@ -77,7 +79,7 @@ func ReadCSV(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		singleRow := AnimeStruct{
+		singleRow := animeI.AnimeStruct{
 			AnimeId:  animeId,
 			Title:    content[1],
 			Synopsis: content[2],
