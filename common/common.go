@@ -12,12 +12,12 @@ import (
 	"gobootcamp/models"
 )
 
-func CsvToPokemon(f multipart.File) ([]models.Pokemon, error) {
-	var pokemons []models.Pokemon
+func CsvToPokemon(f multipart.File) (models.Pokemons, error) {
+	var pokemons models.Pokemons
 
 	lines, err := csv.NewReader(f).ReadAll()
 	if err != nil {
-		return []models.Pokemon{}, err
+		return models.Pokemons{}, err
 	}
 
 	for _, item := range lines {
@@ -28,15 +28,15 @@ func CsvToPokemon(f multipart.File) ([]models.Pokemon, error) {
 			continue
 		}
 
-		person := models.Pokemon{
+		pokemon := models.Pokemon{
 			Id:   id,
 			Name: item[1],
 		}
 
-		pokemons = append(pokemons, person)
+		pokemons = append(pokemons, pokemon)
 	}
 
-	fmt.Println(lines)
+	fmt.Println(pokemons)
 	return pokemons, nil
 }
 
