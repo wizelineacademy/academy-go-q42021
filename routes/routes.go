@@ -18,7 +18,9 @@ func HandleRequests() {
 
 	pokemonController := controllers.PokemonController{PokemonRepo: &repositories.PokemonRepository{}}
 	r.GET("/pokemon/:id", pokemonController.GetPokemonById)
+	r.GET("/pokeapi", pokemonController.GetPokemonsFromPokeApi)
 	r.POST("/pokemon/csv", pokemonController.ReadCsv)
+	r.POST("/pokemon/workerpool", pokemonController.GetPokemonsWithWorkerPool)
 
 	r.Run() // listen and serve on 0.0.0.0:8080
 }

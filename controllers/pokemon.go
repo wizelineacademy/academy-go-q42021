@@ -42,3 +42,30 @@ func (p *PokemonController) GetPokemonById(c *gin.Context) {
 
 	c.JSON(http.StatusOK, pokemon)
 }
+
+func (p *PokemonController) GetPokemonsFromPokeApi(c *gin.Context) {
+	// question: is there a simpliest way to parse the param?
+	resp, err := p.PokemonRepo.GetPokemonsFromPokeAPI()
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "something went wrong"})
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (p *PokemonController) GetPokemonsWithWorkerPool(c *gin.Context) {
+	// question: is there a simpliest way to parse the param?
+	fileHeader, _ := c.FormFile("file")
+	file, _ := fileHeader.Open()
+
+	pokemons, err := common.CsvToPokemon(file)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "csv not well formated"})
+	}
+
+	//worker pool implementation
+
+	c.JSON(http.StatusOK, pokemons)
+}
