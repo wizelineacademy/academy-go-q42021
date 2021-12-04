@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
+
 	"gobootcamp/common"
 	"gobootcamp/repositories"
-
-	"github.com/gin-gonic/gin"
 )
 
 type PokemonController struct {
@@ -33,7 +33,7 @@ func (p *PokemonController) ReadCsv(c *gin.Context) {
 func (p *PokemonController) GetPokemonById(c *gin.Context) {
 	// question: is there a simpliest way to parse the param?
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	id, _ := strconv.Atoi(idParam)
 	pokemon, err := p.PokemonRepo.GetPokemonById(int(id))
 
 	if err != nil {
@@ -55,17 +55,22 @@ func (p *PokemonController) GetPokemonsFromPokeApi(c *gin.Context) {
 }
 
 func (p *PokemonController) GetPokemonsWithWorkerPool(c *gin.Context) {
-	// question: is there a simpliest way to parse the param?
+	itemsQuery := c.Query("items")
+	items, _ := strconv.Atoi(itemsQuery)
+
+	itemsPerWorkerQuery := c.Query("items_per_workers")
+	itemsPerWorker, _ := strconv.Atoi(itemsPerWorkerQuery)
+
+	typePokemon := c.Query("type")
+
 	fileHeader, _ := c.FormFile("file")
 	file, _ := fileHeader.Open()
 
-	pokemons, err := common.CsvToPokemon(file)
+	pokemons, err := common.WorkerPoolReadCSV(file, items, itemsPerWorker, typePokemon)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "csv not well formated"})
 	}
-
-	//worker pool implementation
 
 	c.JSON(http.StatusOK, pokemons)
 }

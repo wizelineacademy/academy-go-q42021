@@ -2,12 +2,11 @@ package common
 
 import (
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
-	"log"
+	"io"
 	"mime/multipart"
-	"net/http"
 	"strconv"
+	"sync"
 
 	"gobootcamp/models"
 )
@@ -21,17 +20,7 @@ func CsvToPokemon(f multipart.File) (models.Pokemons, error) {
 	}
 
 	for _, item := range lines {
-		id, err := strconv.Atoi(item[0])
-
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-
-		pokemon := models.Pokemon{
-			Id:   id,
-			Name: item[1],
-		}
+		pokemon := parsePokemon(item)
 
 		pokemons = append(pokemons, pokemon)
 	}
@@ -40,14 +29,73 @@ func CsvToPokemon(f multipart.File) (models.Pokemons, error) {
 	return pokemons, nil
 }
 
-func HandleInternalServerError(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Header().Set("Content-Type", "application/json")
-	resp := make(map[string]string)
-	resp["message"] = "Some Error Occurred"
-	jsonResp, err := json.Marshal(resp)
-	if err != nil {
-		log.Fatalf("Error happened. Err: %s", err)
+func worker(t string, jobs <-chan []string, results chan<- models.Pokemon) {
+	for {
+		select {
+		case job, ok := <-jobs:
+			if !ok {
+				return
+			}
+
+			p := parsePokemon(job)
+			if t == "odd" && p.Id%2 == 0 {
+				results <- p
+			} else if t == "even" && p.Id%2 != 0 {
+				results <- p
+			}
+		}
 	}
-	w.Write(jsonResp)
+}
+
+func WorkerPoolReadCSV(f multipart.File, numJobs int, itemsPerWorker int, t string) (models.Pokemons, error) {
+	reader := csv.NewReader(f)
+	var pokemons models.Pokemons
+
+	numWorkers := numJobs / itemsPerWorker
+	fmt.Println(numWorkers)
+	jobs := make(chan []string, numJobs)
+	res := make(chan models.Pokemon, numJobs)
+
+	var wg sync.WaitGroup
+
+	for w := 0; w < numWorkers; w++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+			worker(t, jobs, res)
+		}()
+	}
+
+	for j := 1; j <= numJobs; j++ {
+		rStr, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			fmt.Println("ERROR: ", err.Error())
+			break
+		}
+		jobs <- rStr
+	}
+
+	close(jobs)
+	wg.Wait()
+	close(res)
+
+	for r := range res {
+		pokemons = append(pokemons, r)
+	}
+
+	return pokemons, nil
+}
+
+func parsePokemon(data []string) models.Pokemon {
+	id, _ := strconv.Atoi(data[0])
+	pokemon := models.Pokemon{
+		Id:   id,
+		Name: data[1],
+	}
+
+	return pokemon
 }
