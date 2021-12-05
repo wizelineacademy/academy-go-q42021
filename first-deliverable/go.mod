@@ -1,4 +1,4 @@
-module academy-go-q42021
+module academy-go-q42021/first-deliverable
 
 go 1.17
 

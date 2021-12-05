@@ -1,15 +1,16 @@
 package server
 
-import ( 
-	"fmt"
+import (
+	entity "academy-go-q42021/first-deliverable/pkg/entity"
 	"encoding/json"
+	"fmt"
 	"net/http"
-	entity "academy-go-q42021/pkg/entity"
+
 	"github.com/gorilla/mux"
 )
 
 type api struct {
-	router http.Handler
+	router     http.Handler
 	repository entity.ItemRepository
 }
 
@@ -20,12 +21,12 @@ type Server interface {
 
 // New - Create a new entity
 func New(repo entity.ItemRepository) Server {
-	a:= &api{repository: repo}
-	r:= mux.NewRouter()
+	a := &api{repository: repo}
+	r := mux.NewRouter()
 
 	r.HandleFunc("/", a.homePage).Methods(http.MethodGet)
 	r.HandleFunc("/items", a.fetchItems).Methods(http.MethodGet)
-    r.HandleFunc("/item/{id}", a.fetchItem).Methods(http.MethodGet)
+	r.HandleFunc("/item/{id}", a.fetchItem).Methods(http.MethodGet)
 
 	a.router = r
 	return a
@@ -37,7 +38,7 @@ func (a *api) Router() http.Handler {
 }
 
 func (a *api) homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w,"Welcome to the HomePage!")
+	fmt.Fprintf(w, "Welcome to the HomePage!")
 	fmt.Println("Endpoint Hit: homePage")
 }
 
@@ -46,7 +47,7 @@ func (a *api) fetchItems(w http.ResponseWriter, r *http.Request) {
 	records, err := a.repository.FetchItems()
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound) 
+		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode("Item Not found")
 		return
 	}

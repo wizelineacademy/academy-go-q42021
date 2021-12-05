@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"sync"
+	record "academy-go-q42021/first-deliverable/pkg/entity"
+	"fmt"
 	"strconv"
-	"fmt"		
-	record "academy-go-q42021/pkg/entity"
+	"sync"
 )
 
 type itemRepository struct {
@@ -15,7 +15,7 @@ type itemRepository struct {
 // NewItemsRepository - Create repository of Items
 func NewItemsRepository(records []record.Item) record.ItemRepository {
 	if records == nil {
-		records = make([]record.Item,0)
+		records = make([]record.Item, 0)
 	}
 	return &itemRepository{
 		records: records,
@@ -37,8 +37,8 @@ func (r *itemRepository) FetchItems() ([]record.Item, error) {
 func (r *itemRepository) FetchItemByID(ID string) (*record.Item, error) {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
-	id , _ := strconv.Atoi(ID)
-	fmt.Println("value of id" , id)
+	id, _ := strconv.Atoi(ID)
+	fmt.Println("value of id", id)
 	for _, v := range r.records {
 		if v.ID == id {
 			return &v, nil
