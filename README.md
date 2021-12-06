@@ -1,5 +1,24 @@
 # Golang Bootcamp
 
+--Example of api usage--
+
+How to run server:
+
+go run .
+
+Get all stands: 
+
+http://localhost:8080/standsApi/v1/stands/
+
+Get specific stand by standId:
+
+http://localhost:8080/standsApi/v1/stands/{standId}
+
+Add stand to CSV:
+
+http://localhost:3001/addStand/
+
+
 ## Introduction
 
 Thank you for participating in the Golang Bootcamp course!
