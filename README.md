@@ -1,5 +1,24 @@
 # Golang Bootcamp
 
+--Example of api usage--
+
+How to run server:
+
+go run .
+
+Get all champions: 
+
+http://localhost:8081/championApi/v1/champion/
+
+Get specific champion by championId:
+
+http://localhost:8081/championApi/v1/champions/{championId}
+
+Add champion to CSV:
+
+http://localhost:8081/addChampion/
+
+
 ## Introduction
 
 Thank you for participating in the Golang Bootcamp course!
