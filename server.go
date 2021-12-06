@@ -1,7 +1,7 @@
 package main
 
 import (
-standRouter "github.com/AndresCravioto/academy-go-q42021/api/routes"
+championRouter "github.com/AndresCravioto/academy-go-q42021/api/routes"
 	"log"
 	"time"
 )
@@ -16,5 +16,5 @@ func init() {
 }
 
 func main() {
-	standRouter.Routes()
+	championRouter.Routes()
 }

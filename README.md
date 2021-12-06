@@ -6,17 +6,17 @@ How to run server:
 
 go run .
 
-Get all stands: 
+Get all champions: 
 
-http://localhost:8080/standsApi/v1/stands/
+http://localhost:8081/championApi/v1/champion/
 
-Get specific stand by standId:
+Get specific champion by championId:
 
-http://localhost:8080/standsApi/v1/stands/{standId}
+http://localhost:8081/championApi/v1/champions/{championId}
 
-Add stand to CSV:
+Add champion to CSV:
 
-http://localhost:3001/addStand/
+http://localhost:8081/addChampion/
 
 
 ## Introduction
