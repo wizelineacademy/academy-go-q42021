@@ -2,33 +2,22 @@ package main
 
 import (
 	"encoding/json"
+	"main/repository"
 	"net/http"
 )
 
-type Car struct {
-	Id    int    `json:"id"`
-	Year  int    `json:"year"`
-	Brand string `json:"brand"`
-	Model string `json:"model"`
-	Color string `json:"color"`
-}
-
 var (
-	cars []Car
+	repo repository.CarRepo = repository.NewCarRepo()
 )
-
-func init() {
-	cars = []Car{Car{Id: 10, Year: 2020, Brand: "Nissan", Model: "Versa", Color: "Black"}}
-}
 
 func GetCars(resp http.ResponseWriter, req *http.Request) {
 	resp.Header().Set("Content-Type", "application/json")
-	result, err := json.Marshal(cars)
+	cars, err := repo.GetAll()
 	if err != nil {
 		resp.WriteHeader(http.StatusInternalServerError)
-		resp.Write([]byte(`{"error": "json enc error"}`))
-		return
+		resp.Write([]byte(`{"error": "Error getting the cars"}`))
 	}
 	resp.WriteHeader(http.StatusOK)
-	resp.Write(result)
+	json.NewEncoder(resp).Encode(cars)
+
 }
