@@ -37,7 +37,6 @@ func ListarPokemones(w http.ResponseWriter, peticion *http.Request) {
 
 func BuscarPokemones(w http.ResponseWriter, peticion *http.Request) {
 	id, existeId := peticion.URL.Query()["id"]
-	// Imprimir para depurar
 	fmt.Printf("%v\n", id[0])
 	if existeId {
 		i, err := strconv.Atoi(id[0])
