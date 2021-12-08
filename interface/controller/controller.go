@@ -61,6 +61,7 @@ func BuscarPokemones(w http.ResponseWriter, peticion *http.Request) {
 
 func buscarPokemonPorId(id int) (Model.Pokemon, bool) {
 	for _, v := range pokedex {
+		//fmt.Printf("2**%d = %d\n", i, v)
 		if v.Id == id {
 			return v, false
 		}
@@ -153,6 +154,22 @@ func ReadCsvConcurrently(items int, evenOddType string, itemsPerWorker int) []Mo
 	}
 
 	defer fs.Close()
+	//r := csv.NewReader(fs)
+
+	//logica de lectura con For
+	/*	for {
+		val, poke := getRow(r, evenOdd, items)
+		if val == "EOF" {
+			break
+		} else if val == "" {
+			//fmt.Println(pokemonToJson(poke))
+			pokedex = append(pokedex, poke)
+			//fmt.Println(poke)
+		} else if val == "ID too high" {
+			break
+		}
+	}*/
+
 	//Nueva lógica
 	var contWorkers = (items / itemsPerWorker) + 1
 	jobs := make(chan int, items)
@@ -177,6 +194,7 @@ func ReadCsvConcurrently(items int, evenOddType string, itemsPerWorker int) []Mo
 	close(jobs)
 	for j := 0; j < items; j++ {
 		newPokedex = append(newPokedex, <-results)
+		//fmt.Println(pokemonToJson(<-results))
 	}
 	return newPokedex
 }
@@ -208,6 +226,7 @@ func getRow(r *csv.Reader, evenOdd int, maxId int) (string, Model.Pokemon) {
 	row, err := r.Read()
 
 	if err != nil && err != io.EOF {
+		//log .Fatalf("can not read, err is %+v", err)
 		return "can not  read, er r is " + err.Error(), Model.Pokemon{}
 	}
 

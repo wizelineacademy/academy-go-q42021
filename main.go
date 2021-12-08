@@ -10,7 +10,7 @@ import (
 
 func main() {
 	controller.LlenarPokedex()
-	//manejadores de rutas
+
 	http.HandleFunc(router.ListPokemon, func(w http.ResponseWriter, peticion *http.Request) {
 		controller.ListarPokemones(w, peticion)
 	})
