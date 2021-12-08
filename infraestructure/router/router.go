@@ -1,5 +1,6 @@
 package router
 
+//
 var SearchPokemon = "/buscarPokemon"
 var ListPokemon = "/listarPokemon"
 var ListPokemonConcurrently = "/listarPokemonConcurrently"
