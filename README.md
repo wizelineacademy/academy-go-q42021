@@ -6,15 +6,19 @@ go run .
 
 Get all champions: 
 
-http://localhost:8081/championApi/v1/champion/
+http://localhost:8080/championApi/v1/champion/
 
 Get specific champion by championId:
 
-http://localhost:8081/championApi/v1/champions/{championId}
+http://localhost:8080/championApi/v1/champions/{championId}
 
-Add champion to CSV:
+Add champion to CSV from DDragonDatabase:
 
-http://localhost:8081/createChampionsDB/
+http://localhost:8080/createChampionsDB/
+
+Worker Endpoint request example: 
+
+localhost:8080/championsApi/v1/worker/even/5/5
 
 The goal is to build a REST API which must include:
 
