@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestNewPokemon(t *testing.T) {
-	actual := NewChampion(
+func TestNewChampion(t *testing.T) {
+	newChampion := NewChampion(
 		"38",
 		"Kassadin",
 		"the Void Walker",
@@ -19,5 +19,5 @@ func TestNewPokemon(t *testing.T) {
 		"Cutting a burning swath through the darkest places of the world, Kassadin knows his days are numbered. A widely traveled Shuriman guide and adventurer, he had chosen to raise a family among the peaceful southern tribes—until the day his village was...",
 	}
 
-	assert.Equal(t, actual, expected)
+	assert.Equal(t, newChampion, expected)
 }
